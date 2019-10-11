@@ -10,6 +10,10 @@ type server string
 
 const text = "server example from github\n"
 
+func (s server) Name() string {
+	return "example1"
+}
+
 func (s server) Serve(w http.ResponseWriter, req *http.Request) {
 	log.Printf(text)
 	fmt.Fprintf(w, text)

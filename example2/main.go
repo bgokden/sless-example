@@ -2,22 +2,48 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+
+	goappenv "github.com/bgokden/go-app-env"
 )
 
-type server string
+type ExampleGoApp struct{}
 
-const text = "server example from github 2\n"
-
-func (s server) Name() string {
+// GetName is used for service registery
+func (e *ExampleGoApp) GetName() string {
 	return "example2"
 }
 
-func (s server) Serve(w http.ResponseWriter, req *http.Request) {
-	log.Printf(text)
+// GetTag will be used for versioning
+func (e *ExampleGoApp) GetTag() string {
+	return "v0.1.0"
+}
+
+// GetDependencies will be used for initializing other services
+func (e *ExampleGoApp) GetDependencies() []string {
+	return []string{}
+}
+
+// RunWithEnv is the main loop that will be initialized.
+func (e *ExampleGoApp) RunWithEnv(goappenv goappenv.GoAppEnv) error {
+	logger := goappenv.GetLogger()
+	logger.Printf("I am running in env %v\n", goappenv.GetName())
+	mux := goappenv.GetHttpServer()
+	mux.HandleFunc("/example2", serve)
+	return nil
+}
+
+const text = "server example from github 2\n"
+
+func serve(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, text)
 }
 
-// exported
-var Server server
+func main() {
+	exampleGoApp := &ExampleGoApp{}
+	err := exampleGoApp.RunWithEnv(goappenv.Base())
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+	}
+	select {}
+}

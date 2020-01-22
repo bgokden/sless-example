@@ -47,3 +47,5 @@ func main() {
 	}
 	select {}
 }
+
+var GoApp ExampleGoApp
